@@ -37,10 +37,10 @@ def generate_chart():
     short = int(request.form['short'])
     long = int(request.form['long'])
     ind = request.form['ind']
+    start_years_ago = int(request.form['start_years_ago'])
+    end_years_ago = int(request.form['end_years_ago'])
 
     # Download historical data for ticker
-    start_years_ago = 30
-    end_years_ago = 0
     start = pd.Timestamp.today() - pd.DateOffset(years=start_years_ago)
     end = pd.Timestamp.today() - pd.DateOffset(years=end_years_ago)
     df = pd.DataFrame()
@@ -151,6 +151,16 @@ def generate_chart():
 
     # Create a base64 encoded image string
     img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+
+    # Create a pandas DataFrame from the tabulate output
+    df3 = pd.DataFrame(table.split('\n')[2:-1])  # remove header and footer rows
+    df3 = df3[0].str.split('|', expand=True)  # split columns into separate cells
+    df3.columns = df3.iloc[0]  # set the first row as column names
+    df3 = df3[1:]  # remove the first row
+    df3 = df3.set_index('KPI')  # set the KPI column as index
+
+    # Render the DataFrame as an HTML table
+    table_html = df3.to_html(classes='table table-striped')
 
     return render_template('index.html', img_str=img_str)
 

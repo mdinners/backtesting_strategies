@@ -4,14 +4,10 @@
     <title>Chart Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="templates/style.css">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand text-center" href="#">Backtesting Tool</a>
-      </div>
-    </nav>
+
     <div class="container mt-4">
       <h1 class="text-center mb-4">Chart Generators</h1>
       <div class="row">
@@ -62,13 +58,11 @@
           </form>
         </div>
         <div class="col-md-6">
-          <div class="col-md-6">
-  <div class="text-center mt-4">
-    <img id="chart-img" src="" alt="chart" class="img-fluid">
+  <div class="text-center">
+    <img id="chart-img" src="data:image/png;base64,{{ img_str }}" alt="chart" class="img-fluid" width="1200" height="2400">
   </div>
 </div>
         </div>
-      </div>
     </div>
   </body>
 </html>

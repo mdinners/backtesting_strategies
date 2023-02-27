@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request
 import pandas as pd
 import matplotlib
@@ -24,6 +25,7 @@ warnings.filterwarnings("ignore")
 from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max_dd
 
 app = Flask(__name__, template_folder='templates')
+
 
 
 @app.route('/')
@@ -153,3 +155,6 @@ def generate_chart():
     img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
     return render_template('index.html', img_str=img_str)
+
+if __name__ == '__main__':
+    app.run(port=port, debug=True)

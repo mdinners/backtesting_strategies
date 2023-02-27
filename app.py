@@ -20,7 +20,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-# Import the Hedge v5 trading strategy script
+# Import the Hedge v5 trading strategy script test
 from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max_dd
 
 app = Flask(__name__, template_folder='templates')

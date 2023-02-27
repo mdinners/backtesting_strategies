@@ -146,7 +146,7 @@ def generate_chart():
                       tablefmt='orgtbl'))
 
     img_buffer = io.BytesIO()
-    fig.savefig(img_buffer, format='png')
+    fig.savefig(img_buffer, format='png',bbox_inches='tight')
     img_buffer.seek(0)
 
     # Create a base64 encoded image string

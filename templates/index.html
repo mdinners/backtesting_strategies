@@ -2,47 +2,68 @@
 <html>
   <head>
     <title>Chart Generator</title>
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link rel="stylesheet" href="style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
         <a class="navbar-brand text-center" href="#">Backtesting Tool</a>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <h1 class="text-center mb-4">Chart Generators</h1>
+      <form action="/generate_chart" method="POST">
+        <div class="form-group row">
+          <label for="symbol" class="col-sm-2 col-form-label">Symbol:</label>
+          <div class="col-sm-10">
+            <input type="text" id="symbol" name="symbol" value="QQQ" class="form-control">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="short" class="col-sm-2 col-form-label">Short period:</label>
+          <div class="col-sm-10">
+            <input type="text" id="short" name="short" value = "1" class="form-control">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="long" class="col-sm-2 col-form-label">Long period:</label>
+          <div class="col-sm-10">
+            <input type="text" id="long" name="long" value = "200" class="form-control">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="ind" class="col-sm-2 col-form-label">Indicator:</label>
+          <div class="col-sm-10">
+            <select id="ind" name="ind" value = "SMA" class="form-control">
+              <option value="SMA">SMA</option>
+              <option value="EMA">EMA</option>
+            </select>
+                      </div>
+        </div>
+        <div class="form-group row">
+          <label for="start_years_ago" class="col-sm-2 col-form-label">Start years ago:</label>
+          <div class="col-sm-10">
+            <input type="text" id="start_years_ago" name="start_years_ago" value = "10" class="form-control">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="end_years_ago" class="col-sm-2 col-form-label">End years ago:</label>
+          <div class="col-sm-10">
+            <input type="text" id="end_years_ago" name="end_years_ago" value="0" class="form-control">
+          </div>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary mt-4">Generate chart</button>
+        </div>
+      </form>
+      <div class="text-center mt-4">
+        <img src="data:image/png;base64,{{ img_str }}" alt="chart">
+      </div>
     </div>
-</nav>
-    <h1>Chart Generators</h1>
-
-
-
-    <form action="/generate_chart" method="POST">
-      <label for="symbol">Symbol:</label>
-      <input type="text" id="symbol" name="symbol" value="QQQ"><br>
-
-      <label for="short">Short period:</label>
-      <input type="text" id="short" name="short" value = "1"><br>
-
-      <label for="long">Long period:</label>
-      <input type="text" id="long" name="long" value = "200"><br>
-
-      <label for="ind">Indicator:</label>
-      <select id="ind" name="ind" value = "SMA">
-        <option value="SMA">SMA</option>
-        <option value="EMA">EMA</option>
-      </select><br>
-
-      <label for="start_years_ago">Start years ago:</label>
-      <input type="text" id="start_years_ago" name="start_years_ago" value = "10"><br>
-
-      <label for="end_years_ago">End years ago:</label>
-      <input type="text" id="end_years_ago" name="end_years_ago" value="0"><br>
-
-      <input type="submit" value="Generate chart">
-    </form>
-
-      <img src="data:image/png;base64,{{ img_str }}" alt="chart">
-
-
   </body>
 </html>
+
+
+

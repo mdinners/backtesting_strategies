@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chart Generator</title>
+  </head>
+  <body>
+    <h1>Chart Generator</h1>
+
+    <form action="/generate_chart" method="POST">
+      <label for="symbol">Symbol:</label>
+      <input type="text" id="symbol" name="symbol" value="QQQ"><br>
+
+      <label for="short">Short period:</label>
+      <input type="text" id="short" name="short" value = "1"><br>
+
+      <label for="long">Long period:</label>
+      <input type="text" id="long" name="long" value = "200"><br>
+
+      <label for="ind">Indicator:</label>
+      <select id="ind" name="ind" value = "SMA">
+        <option value="SMA">SMA</option>
+        <option value="EMA">EMA</option>
+      </select><br>
+
+      <label for="start_years_ago">Start years ago:</label>
+      <input type="text" id="start_years_ago" name="start_years_ago" value = "10"><br>
+
+      <label for="end_years_ago">End years ago:</label>
+      <input type="text" id="end_years_ago" name="end_years_ago" value="0"><br>
+
+      <input type="submit" value="Generate chart">
+    </form>
+
+      <img src="data:image/png;base64,{{ img_str }}" alt="chart">
+
+
+  </body>
+</html>

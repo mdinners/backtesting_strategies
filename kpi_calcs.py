@@ -31,14 +31,14 @@ def calculate_kpis(strat_returns):
 
     # Calculate KPI data
     data = [
-        {'kpi': 'CAGR', 'long_only': '{:.2%}'.format(CAGR(strategy_df)),
-         'long_only_no_signal': '{:.2%}'.format(CAGR(strategy_df_2))},
+        {'kpi': 'CAGR', 'long_only': '{:.1%}'.format(CAGR(strategy_df)),
+         'long_only_no_signal': '{:.1%}'.format(CAGR(strategy_df_2))},
         {'kpi': 'Sharpe ratio', 'long_only': '{:.2f}'.format(sharpe(strategy_df, 0.025)),
          'long_only_no_signal': '{:.2f}'.format(sharpe(strategy_df_2, 0.025))},
-        {'kpi': 'Max Drawdown', 'long_only': '{:.2%}'.format(max_dd(strategy_df)),
-         'long_only_no_signal': '{:.2%}'.format(max_dd(strategy_df_2))},
-        {'kpi': 'Total return multiple', 'long_only': '{:.2%}'.format(total_return_multiple(strategy_df)),
-         'long_only_no_signal': '{:.2%}'.format(total_return_multiple(strategy_df_2))}
+        {'kpi': 'Max Drawdown', 'long_only': '{:.0%}'.format(max_dd(strategy_df)),
+         'long_only_no_signal': '{:.0%}'.format(max_dd(strategy_df_2))},
+        {'kpi': 'Total return multiple', 'long_only': "{:.1f}x".format(total_return_multiple(strategy_df)),
+         'long_only_no_signal': "{:.1f}x".format(total_return_multiple(strategy_df_2))}
     ]
 
     return data

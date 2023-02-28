@@ -6,7 +6,6 @@ import matplotlib
 matplotlib.use('Agg')
 import os
 
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -16,7 +15,6 @@ from charts import generate_charts
 from sma_ema import add_sma_ema_signals
 from data_download import download_ticker_data
 from kpi_calcs import calculate_kpis, KPIs
-
 
 app = Flask(__name__, template_folder='templates',static_folder='templates')
 
@@ -28,7 +26,6 @@ app.secret_key = secret_key
 
 #call boostrap table for bootstrap table
 bootstrap = Bootstrap(app)
-
 
 # default values
 default_symbol = 'QQQ'
@@ -49,7 +46,6 @@ def index():
         end_years_ago=session.get('end_years_ago', default_end_years_ago),
         img_str = '',
         table_str = '')
-
 
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
@@ -75,7 +71,6 @@ def generate_chart():
     ohlc_dict = add_sma_ema_signals(ohlc_data, symbol, short, long, ind)
 
     print('Dictionary after SMA and EMA calc and buy/sell signal',ohlc_dict)
-
 
     # Calculate returns with long strategy and ticker signal
     df_temp = pd.concat(ohlc_dict, axis=1)
@@ -112,5 +107,9 @@ def generate_chart():
 
     return render_template('index.html', table_html=table_html, img_str=img_str, symbol=symbol, short=short, long=long, ind=ind, start_years_ago=start_years_ago, end_years_ago=end_years_ago)
 
+
 if __name__ == '__main__':
-    app.run(port=port, debug=True)
+    # Get the port number from the environment variable, or use 5000 as a fallback
+    port = int(os.environ.get('PORT', 5000))
+    # Run the app on the specified port
+    app.run(host='0.0.0.0', port=port)

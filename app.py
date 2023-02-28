@@ -104,6 +104,9 @@ def generate_chart():
     ohlc_dict[ticker_signal]['Signal'] = ohlc_dict[ticker_signal]['Signal'].shift(1)
     ohlc_dict[ticker_signal]['Position'] = ohlc_dict[ticker_signal]['Signal'].diff()
 
+    print('Dictionary after SMA and EMA calc and buy/sell signal',ohlc_dict)
+
+
     # Calculate returns with long strategy and ticker signal
     df_temp = pd.concat(ohlc_dict, axis=1)
     strat_returns = df_temp.xs('Adj Close', axis=1, level=1)
@@ -133,36 +136,42 @@ def generate_chart():
     strategy_df["Returns"] = strategy_df.mean(axis=1)
 
     # Charts
-    fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(10, 18))
-    ax[0].set_title('Long-only strategy: {a}'.format(a=ticker_strat))
-    ax[1].set_title('Crossover signal: {a} {b}/{c} {d} '.format(a=ticker_signal, b=short, c=long, d=ind))
-    ax[2].set_title('Cumulative return')
+    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
+    #ax[0].set_title('Long-only strategy: {a}'.format(a=ticker_strat))
+    ax[0].set_title('Crossover signal: {a} {b}/{c} {d} '.format(a=ticker_signal, b=short, c=long, d=ind))
+    ax[1].set_title('Cumulative return')
 
     ax[0].grid()
     ax[1].grid()
-    ax[2].grid()
+    #ax[2].grid()
 
     # Chart 1
-    ax[0].plot(strat_returns[ticker_strat], color='k')
+    #ax[0].plot(strat_returns[ticker_strat], color='black')
 
     # Chart 2
-    ax[1].plot(ohlc_dict[ticker_signal]['Adj Close'], color='k', label='Adj Close')
-    ax[1].plot(ohlc_dict[ticker_signal]['Short {}'.format(ind)], color='b', label='Short {}'.format(ind))
-    ax[1].plot(ohlc_dict[ticker_signal]['Long {}'.format(ind)], color='g', label='Long {}'.format(ind))
+    ax[0].plot(ohlc_dict[ticker_signal]['Adj Close'], color='black', label='Adj Close')
+    ax[0].plot(ohlc_dict[ticker_signal]['Short {}'.format(ind)], color='black', label='Short {}'.format(ind))
+    ax[0].plot(ohlc_dict[ticker_signal]['Long {}'.format(ind)], color='g', label='Long {}'.format(ind))
 
     buys = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == 1].index
     sells = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == -1].index
-    ax[1].plot_date(buys, ohlc_dict[ticker_signal]['Short {}'.format(ind)][ohlc_dict[ticker_signal]['Position'] == 1], \
+    ax[0].plot_date(buys, ohlc_dict[ticker_signal]['Short {}'.format(ind)][ohlc_dict[ticker_signal]['Position'] == 1], \
                     '^', markersize=5, color='g', label='buy')
-    ax[1].plot_date(sells, ohlc_dict[ticker_signal]['Short {}'.format(ind)][ohlc_dict[ticker_signal]['Position'] == -1], \
+    ax[0].plot_date(sells, ohlc_dict[ticker_signal]['Short {}'.format(ind)][ohlc_dict[ticker_signal]['Position'] == -1], \
                     'v', markersize=5, color='r', label='sell')
-    ax[1].legend()
+    ax[0].legend()
 
     # Chart 3
+    strategy_df_2["cum_return"] = (1 + strategy_df_2["Returns"]).cumprod()
+    strategy_df_2['Position'] = strat_returns['Position']
+    ax[1].plot(strategy_df_2["cum_return"])
+    ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+
+    # Chart 4
     strategy_df["cum_return"] = (1 + strategy_df["Returns"]).cumprod()
     strategy_df['Position'] = strat_returns['Position']
-    ax[2].plot(strategy_df["cum_return"])
-    ax[2].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    ax[1].plot(strategy_df["cum_return"],color='green')
+    ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
 
     # Print output: KPIs table
     table = (tabulate([['CAGR', "{:.2%}".format(CAGR(strategy_df)), "{:.2%}".format(CAGR(strategy_df_2))],

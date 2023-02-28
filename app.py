@@ -152,16 +152,6 @@ def generate_chart():
     # Create a base64 encoded image string
     img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
-    # Create a pandas DataFrame from the tabulate output
-    df3 = pd.DataFrame(table.split('\n')[2:-1])  # remove header and footer rows
-    df3 = df3[0].str.split('|', expand=True)  # split columns into separate cells
-    df3.columns = df3.iloc[0]  # set the first row as column names
-    df3 = df3[1:]  # remove the first row
-    df3 = df3.set_index('KPI')  # set the KPI column as index
-
-    # Render the DataFrame as an HTML table
-    table_html = df3.to_html(classes='table table-striped')
-
     return render_template('index.html', img_str=img_str)
 
 if __name__ == '__main__':

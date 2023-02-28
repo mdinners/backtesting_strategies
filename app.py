@@ -4,10 +4,8 @@ from flask_bootstrap import Bootstrap
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
-import yfinance as yf
-import numpy as np
-import copy
 import os
+
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -30,6 +28,7 @@ app.secret_key = secret_key
 
 #call boostrap table for bootstrap table
 bootstrap = Bootstrap(app)
+
 
 # default values
 default_symbol = 'QQQ'

@@ -1,7 +1,6 @@
 
 from flask import Flask, render_template, request, session
 from flask_bootstrap import Bootstrap
-from flask_table import Table, Col
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
@@ -18,6 +17,8 @@ from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max
 from charts import generate_charts
 from sma_ema import add_sma_ema_signals
 from data_download import download_ticker_data
+from kpi_calcs import calculate_kpis, KPIs
+
 
 app = Flask(__name__, template_folder='templates',static_folder='templates')
 
@@ -53,6 +54,7 @@ def index():
 
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
+
     # Get user input
     symbol = request.form.get('symbol', default_symbol)
     short = int(request.form.get('short', default_short))
@@ -93,35 +95,9 @@ def generate_chart():
 
     strat_returns['All Returns'] = (strat_returns[ticker_strat].pct_change())
 
-    # Calculating long-only strategy KPIs without signal
-    strategy_df_2 = pd.DataFrame()
-    strategy_df_2["Returns"] = strat_returns["All Returns"]
-    strategy_df_2["Returns"] = strategy_df_2.mean(axis=1)
-    strategy_df_2["cum_return"] = (1 + strategy_df_2["Returns"]).cumprod()
-
-    # Calculating long-only strategy KPIs with signal
-    strategy_df = pd.DataFrame()
-    strategy_df["Returns"] = strat_returns["Returns"]
-    strategy_df["Returns"] = strategy_df.mean(axis=1)
-
-    #table calcs
-    class KPIs(Table):
-        kpi = Col('KPI')
-        long_only = Col('Long-only strat w/ signal', column_html_attrs={'class': 'text-center'})
-        long_only_no_signal = Col('Long-only strat w/o signal', column_html_attrs={'class': 'text-center'})
-
-    data = [
-        {'kpi': 'CAGR', 'long_only': '{:.2%}'.format(CAGR(strategy_df)),
-         'long_only_no_signal': '{:.2%}'.format(CAGR(strategy_df_2))},
-        {'kpi': 'Sharpe ratio', 'long_only': '{:.2f}'.format(sharpe(strategy_df, 0.025)),
-         'long_only_no_signal': '{:.2f}'.format(sharpe(strategy_df_2, 0.025))},
-        {'kpi': 'Max Drawdown', 'long_only': '{:.2%}'.format(max_dd(strategy_df)),
-         'long_only_no_signal': '{:.2%}'.format(max_dd(strategy_df_2))},
-        {'kpi': 'Total return multiple', 'long_only': '{:.2%}'.format(total_return_multiple(strategy_df)),
-         'long_only_no_signal': '{:.2%}'.format(total_return_multiple(strategy_df_2))}
-    ]
-
-    table_html = KPIs(data, classes=['table', 'table-striped']).__html__()
+    # Call the calculate_kpis function to get the KPI data
+    kpi_data = calculate_kpis(strat_returns)
+    table_html = KPIs(kpi_data, classes=['table', 'table-striped']).__html__()
 
     buys = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == 1].index
     sells = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == -1].index

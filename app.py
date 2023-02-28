@@ -1,5 +1,7 @@
 
 from flask import Flask, render_template, request, session
+from flask_bootstrap import Bootstrap
+from flask_table import Table, Col
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -34,6 +36,10 @@ secret_key = os.urandom(24)
 
 # set the secret key in the Flask app
 app.secret_key = secret_key
+
+#call boostrap table for bootstrap table
+bootstrap = Bootstrap(app)
+
 
 # default values
 default_symbol = 'QQQ'
@@ -173,13 +179,24 @@ def generate_chart():
     ax[1].plot(strategy_df["cum_return"],color='green')
     ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
 
-    # Print output: KPIs table
-    table = (tabulate([['CAGR', "{:.2%}".format(CAGR(strategy_df)), "{:.2%}".format(CAGR(strategy_df_2))],
-                       ['Sharpe ratio', "{:.2f}".format(sharpe(strategy_df, 0.025)),
-                        "{:.2f}".format(sharpe(strategy_df_2, 0.025))],
-                       ['Max Drawdown', "{:.2%}".format(max_dd(strategy_df)), "{:.2%}".format(max_dd(strategy_df_2))]],
-                      headers=['KPI', 'Long-only strat w/ signal', 'Long-only strat w/o signal'],
-                      tablefmt='orgtbl'))
+    #table calcs
+    class KPIs(Table):
+        kpi = Col('KPI')
+        long_only = Col('Long-only strat w/ signal')
+        long_only_no_signal = Col('Long-only strat w/o signal')
+
+    data = [
+        {'kpi': 'CAGR', 'long_only': '{:.2%}'.format(CAGR(strategy_df)),
+         'long_only_no_signal': '{:.2%}'.format(CAGR(strategy_df_2))},
+        {'kpi': 'Sharpe ratio', 'long_only': '{:.2f}'.format(sharpe(strategy_df, 0.025)),
+         'long_only_no_signal': '{:.2f}'.format(sharpe(strategy_df_2, 0.025))},
+        {'kpi': 'Max Drawdown', 'long_only': '{:.2%}'.format(max_dd(strategy_df)),
+         'long_only_no_signal': '{:.2%}'.format(max_dd(strategy_df_2))},
+        {'kpi': 'Total return multiple', 'long_only': '{:.2%}'.format(total_return_multiple(strategy_df)),
+         'long_only_no_signal': '{:.2%}'.format(total_return_multiple(strategy_df_2))}
+    ]
+
+    table_html = KPIs(data, classes=['table', 'table-striped']).__html__()
 
     img_buffer = io.BytesIO()
     fig.savefig(img_buffer, format='png',bbox_inches='tight')
@@ -202,7 +219,7 @@ def generate_chart():
     session['start_years_ago'] = start_years_ago
     session['end_years_ago'] = end_years_ago
 
-    return render_template('index.html', table=table, img_str=img_str, symbol=symbol, short=short, long=long, ind=ind, start_years_ago=start_years_ago, end_years_ago=end_years_ago)
+    return render_template('index.html', table_html=table_html, img_str=img_str, symbol=symbol, short=short, long=long, ind=ind, start_years_ago=start_years_ago, end_years_ago=end_years_ago)
 
 
 if __name__ == '__main__':

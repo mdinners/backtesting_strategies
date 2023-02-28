@@ -77,38 +77,11 @@
     </div>
 
   <div>
-    {% if table %}
-      <table>
-        <!-- Your table header code here -->
-        {% for row in table.split("\n") %}
-          {% if loop.index <= 2 %}
-            <thead>
-              <tr>
-                {% for cell in row.split("|")[1:-1] %}
-                  <th>{{ cell.strip() }}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-          {% elif loop.index > 2 and loop.index < table.split("\n")|length - 1 %}
-            <tbody>
-              <tr>
-                {% for cell in row.split("|")[1:-1] %}
-                  <td>{{ cell.strip() }}</td>
-                {% endfor %}
-              </tr>
-            </tbody>
-          {% else %}
-            <tfoot>
-              <tr>
-                {% for cell in row.split("|")[1:-1] %}
-                  <td>{{ cell.strip() }}</td>
-                {% endfor %}
-              </tr>
-            </tfoot>
-          {% endif %}
-        {% endfor %}
-      </table>
-    {% endif %}
+      {% if table_html %}
+          <div class="container mt-5">
+              {{ table_html|safe }}
+          </div>
+      {% endif %}
   </div>
 
   </body>

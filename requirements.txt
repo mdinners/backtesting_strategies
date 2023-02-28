@@ -5,3 +5,5 @@ yfinance
 tabulate
 gunicorn
 Flask==2.1.1
+flask-bootstrap
+flask_table

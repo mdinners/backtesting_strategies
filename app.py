@@ -1,5 +1,5 @@
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -16,6 +16,9 @@ import matplotlib.ticker as mtick
 import io
 from flask import make_response
 import base64
+import os
+
+
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -26,19 +29,43 @@ from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max
 
 app = Flask(__name__, template_folder='templates',static_folder='templates')
 
+# generate a secret key
+secret_key = os.urandom(24)
+
+# set the secret key in the Flask app
+app.secret_key = secret_key
+
+# default values
+default_symbol = 'QQQ'
+default_short = 1
+default_long = 200
+default_ind = 'SMA'
+default_start_years_ago = 20
+default_end_years_ago = 0
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',
+        symbol=session.get('symbol', default_symbol),
+        short=session.get('short', default_short),
+        long=session.get('long', default_long),
+        ind=session.get('ind', default_ind),
+        start_years_ago=session.get('start_years_ago', default_start_years_ago),
+        end_years_ago=session.get('end_years_ago', default_end_years_ago),
+        img_str = '',
+        table_str = '')
+
 
 @app.route('/generate_chart', methods=['POST'])
 def generate_chart():
     # Get user input
-    symbol = request.form['symbol']
-    short = int(request.form['short'])
-    long = int(request.form['long'])
-    ind = request.form['ind']
-    start_years_ago = int(request.form['start_years_ago'])
-    end_years_ago = int(request.form['end_years_ago'])
+    symbol = request.form.get('symbol', default_symbol)
+    short = int(request.form.get('short', default_short))
+    long = int(request.form.get('long', default_long))
+    ind = request.form.get('ind', default_ind)
+    start_years_ago = int(request.form.get('start_years_ago', default_start_years_ago))
+    end_years_ago = int(request.form.get('end_years_ago', default_end_years_ago))
+
 
     # Download historical data for ticker
     start = pd.Timestamp.today() - pd.DateOffset(years=start_years_ago)
@@ -152,7 +179,21 @@ def generate_chart():
     # Create a base64 encoded image string
     img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
-    return render_template('index.html', table=table, img_str=img_str)
+    session['symbol'] = symbol
+    session['short'] = short
+    session['long'] = long
+    session['ind'] = ind
+    session['start_years_ago'] = start_years_ago
+    session['end_years_ago'] = end_years_ago
+
+    session['symbol'] = symbol
+    session['short'] = short
+    session['long'] = long
+    session['ind'] = ind
+    session['start_years_ago'] = start_years_ago
+    session['end_years_ago'] = end_years_ago
+
+    return render_template('index.html', table=table, img_str=img_str, symbol=symbol, short=short, long=long, ind=ind, start_years_ago=start_years_ago, end_years_ago=end_years_ago)
 
 
 if __name__ == '__main__':

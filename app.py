@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max_dd
 from charts import generate_charts
 from sma_ema import add_sma_ema_signals
-
+from data_download import download_ticker_data
 
 app = Flask(__name__, template_folder='templates',static_folder='templates')
 
@@ -29,7 +29,6 @@ app.secret_key = secret_key
 
 #call boostrap table for bootstrap table
 bootstrap = Bootstrap(app)
-
 
 # default values
 default_symbol = 'QQQ'
@@ -62,25 +61,14 @@ def generate_chart():
     start_years_ago = int(request.form.get('start_years_ago', default_start_years_ago))
     end_years_ago = int(request.form.get('end_years_ago', default_end_years_ago))
 
-
-    # Download historical data for ticker
-    start = pd.Timestamp.today() - pd.DateOffset(years=start_years_ago)
-    end = pd.Timestamp.today() - pd.DateOffset(years=end_years_ago)
-    df = pd.DataFrame()
-
     ticker_signal = symbol
     ticker_strat = symbol
 
+    # Define the tickers to download data for
     tickers = [symbol]
-    ohlc_data = {}
 
-    # Other ticker: '^IXIC','ARKK','GOOG','QQQ',
-
-    for ticker in tickers:
-        try:
-            ohlc_data[ticker] = yf.download(ticker, start, end)
-        except Exception as e:
-            print("Failed to download data for ticker {}: {}".format(ticker, str(e)))
+    # Download historical data for tickers
+    ohlc_data = download_ticker_data(tickers, start_years_ago, end_years_ago)
 
     # Add SMA/EMA signals and buy/sell signals
     ohlc_dict = add_sma_ema_signals(ohlc_data, symbol, short, long, ind)
@@ -140,7 +128,6 @@ def generate_chart():
 
     img_str = generate_charts(ohlc_dict, ticker_signal, short, long, ind, ticker_strat, strat_returns, buys, sells)
 
-
     session['symbol'] = symbol
     session['short'] = short
     session['long'] = long
@@ -148,9 +135,7 @@ def generate_chart():
     session['start_years_ago'] = start_years_ago
     session['end_years_ago'] = end_years_ago
 
-
     return render_template('index.html', table_html=table_html, img_str=img_str, symbol=symbol, short=short, long=long, ind=ind, start_years_ago=start_years_ago, end_years_ago=end_years_ago)
-
 
 if __name__ == '__main__':
     app.run(port=port, debug=True)

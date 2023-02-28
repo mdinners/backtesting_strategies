@@ -54,7 +54,7 @@ def generate_charts(ohlc_dict, ticker_signal, short, long, ind, ticker_strat, st
 
         # Create a base64 encoded image string
         img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
-        print("created base64 encoded image string")
+        print("charts.py: created base64 encoded image string")
         # Return the image string
         return img_str
 

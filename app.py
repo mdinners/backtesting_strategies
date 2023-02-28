@@ -182,8 +182,8 @@ def generate_chart():
     #table calcs
     class KPIs(Table):
         kpi = Col('KPI')
-        long_only = Col('Long-only strat w/ signal')
-        long_only_no_signal = Col('Long-only strat w/o signal')
+        long_only = Col('Long-only strat w/ signal', column_html_attrs={'class': 'text-center'})
+        long_only_no_signal = Col('Long-only strat w/o signal', column_html_attrs={'class': 'text-center'})
 
     data = [
         {'kpi': 'CAGR', 'long_only': '{:.2%}'.format(CAGR(strategy_df)),

@@ -4,32 +4,19 @@ from flask_bootstrap import Bootstrap
 from flask_table import Table, Col
 import pandas as pd
 import matplotlib
-import matplotlib.pyplot as plt
 matplotlib.use('Agg')
-from io import BytesIO
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 import yfinance as yf
 import numpy as np
-import datetime as dt
 import copy
-from tabulate import tabulate
-import matplotlib.ticker as mtick
-import io
-from flask import make_response
-import base64
 import os
-
-
 
 import warnings
 warnings.filterwarnings("ignore")
 
-
 # Import the Hedge v5 trading strategy script
 from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max_dd
 from charts import generate_charts
-
+from sma_ema import add_sma_ema_signals
 
 
 app = Flask(__name__, template_folder='templates',static_folder='templates')
@@ -95,23 +82,8 @@ def generate_chart():
         except Exception as e:
             print("Failed to download data for ticker {}: {}".format(ticker, str(e)))
 
-    # Calculating SMA/EMA signal
-    ohlc_dict = copy.deepcopy(ohlc_data)  # copy original data
-    cl_price = pd.DataFrame()
-
-    print('Calculating SMA and EMA for ', ticker_signal)
-    ohlc_dict[ticker_signal]['Short SMA'] = ohlc_dict[ticker_signal]['Adj Close'].rolling(window=short).mean()
-    ohlc_dict[ticker_signal]['Long SMA'] = ohlc_dict[ticker_signal]['Adj Close'].rolling(window=long).mean()
-    ohlc_dict[ticker_signal]['Short EMA'] = ohlc_dict[ticker_signal]['Adj Close'].ewm(span=short, adjust=False).mean()
-    ohlc_dict[ticker_signal]['Long EMA'] = ohlc_dict[ticker_signal]['Adj Close'].ewm(span=long, adjust=False).mean()
-    cl_price[ticker_signal] = ohlc_dict[ticker_signal]['Adj Close']
-
-    print('Calculating Buy/Sell signal for ', ticker_signal)
-    ohlc_dict[ticker_signal]['Signal'] = 0.0
-    ohlc_dict[ticker_signal]['Signal'] = np.where(
-        ohlc_dict[ticker_signal]['Short {}'.format(ind)] > ohlc_dict[ticker_signal]['Long {}'.format(ind)], 1.0, 0.0)
-    ohlc_dict[ticker_signal]['Signal'] = ohlc_dict[ticker_signal]['Signal'].shift(1)
-    ohlc_dict[ticker_signal]['Position'] = ohlc_dict[ticker_signal]['Signal'].diff()
+    # Add SMA/EMA signals and buy/sell signals
+    ohlc_dict = add_sma_ema_signals(ohlc_data, symbol, short, long, ind)
 
     print('Dictionary after SMA and EMA calc and buy/sell signal',ohlc_dict)
 
@@ -143,8 +115,6 @@ def generate_chart():
     strategy_df = pd.DataFrame()
     strategy_df["Returns"] = strat_returns["Returns"]
     strategy_df["Returns"] = strategy_df.mean(axis=1)
-
-
 
     #table calcs
     class KPIs(Table):

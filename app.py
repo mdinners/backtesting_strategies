@@ -28,6 +28,9 @@ warnings.filterwarnings("ignore")
 
 # Import the Hedge v5 trading strategy script
 from hedge_functions import CAGR, total_return_multiple, volatility, sharpe, max_dd
+from charts import generate_charts
+
+
 
 app = Flask(__name__, template_folder='templates',static_folder='templates')
 
@@ -141,43 +144,7 @@ def generate_chart():
     strategy_df["Returns"] = strat_returns["Returns"]
     strategy_df["Returns"] = strategy_df.mean(axis=1)
 
-    # Charts
-    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 10))
-    #ax[0].set_title('Long-only strategy: {a}'.format(a=ticker_strat))
-    ax[0].set_title('Crossover signal: {a} {b}/{c} {d} '.format(a=ticker_signal, b=short, c=long, d=ind))
-    ax[1].set_title('Cumulative return')
 
-    ax[0].grid()
-    ax[1].grid()
-    #ax[2].grid()
-
-    # Chart 1
-    #ax[0].plot(strat_returns[ticker_strat], color='black')
-
-    # Chart 2
-    ax[0].plot(ohlc_dict[ticker_signal]['Adj Close'], color='black', label='Adj Close')
-    ax[0].plot(ohlc_dict[ticker_signal]['Short {}'.format(ind)], color='black', label='Short {}'.format(ind))
-    ax[0].plot(ohlc_dict[ticker_signal]['Long {}'.format(ind)], color='g', label='Long {}'.format(ind))
-
-    buys = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == 1].index
-    sells = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == -1].index
-    ax[0].plot_date(buys, ohlc_dict[ticker_signal]['Short {}'.format(ind)][ohlc_dict[ticker_signal]['Position'] == 1], \
-                    '^', markersize=5, color='g', label='buy')
-    ax[0].plot_date(sells, ohlc_dict[ticker_signal]['Short {}'.format(ind)][ohlc_dict[ticker_signal]['Position'] == -1], \
-                    'v', markersize=5, color='r', label='sell')
-    ax[0].legend()
-
-    # Chart 3
-    strategy_df_2["cum_return"] = (1 + strategy_df_2["Returns"]).cumprod()
-    strategy_df_2['Position'] = strat_returns['Position']
-    ax[1].plot(strategy_df_2["cum_return"])
-    ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-
-    # Chart 4
-    strategy_df["cum_return"] = (1 + strategy_df["Returns"]).cumprod()
-    strategy_df['Position'] = strat_returns['Position']
-    ax[1].plot(strategy_df["cum_return"],color='green')
-    ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
 
     #table calcs
     class KPIs(Table):
@@ -198,19 +165,11 @@ def generate_chart():
 
     table_html = KPIs(data, classes=['table', 'table-striped']).__html__()
 
-    img_buffer = io.BytesIO()
-    fig.savefig(img_buffer, format='png',bbox_inches='tight')
-    img_buffer.seek(0)
+    buys = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == 1].index
+    sells = ohlc_dict[ticker_signal][ohlc_dict[ticker_signal]['Position'] == -1].index
 
-    # Create a base64 encoded image string
-    img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
+    img_str = generate_charts(ohlc_dict, ticker_signal, short, long, ind, ticker_strat, strat_returns, buys, sells)
 
-    session['symbol'] = symbol
-    session['short'] = short
-    session['long'] = long
-    session['ind'] = ind
-    session['start_years_ago'] = start_years_ago
-    session['end_years_ago'] = end_years_ago
 
     session['symbol'] = symbol
     session['short'] = short
@@ -218,6 +177,7 @@ def generate_chart():
     session['ind'] = ind
     session['start_years_ago'] = start_years_ago
     session['end_years_ago'] = end_years_ago
+
 
     return render_template('index.html', table_html=table_html, img_str=img_str, symbol=symbol, short=short, long=long, ind=ind, start_years_ago=start_years_ago, end_years_ago=end_years_ago)
 

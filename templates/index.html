@@ -70,7 +70,7 @@
         </div>
         <div class="col-md-6">
   <div class="text-center">
-    <img id="chart-img" src="data:image/png;base64,{{ img_str }}" alt="chart" class="img-fluid" width="1200" height="2400">
+    <img id="chart-img" src="{% if img_str %}data:image/png;base64,{{ img_str }}{% else %}{{ url_for('static', filename='original_image.png') }}{% endif %}" alt="chart" class="img-fluid" width="1200" height="2400">
   </div>
 </div>
         </div>

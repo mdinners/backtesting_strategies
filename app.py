@@ -152,7 +152,8 @@ def generate_chart():
     # Create a base64 encoded image string
     img_str = base64.b64encode(img_buffer.getvalue()).decode('utf-8')
 
-    return render_template('index.html', img_str=img_str)
+    return render_template('index.html', table=table, img_str=img_str)
+
 
 if __name__ == '__main__':
     app.run(port=port, debug=True)
